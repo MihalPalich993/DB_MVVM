@@ -12,14 +12,22 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <!-- Заголовок "Заказы" и Кнопки Заказов -->
+            <RowDefinition Height="*"/>
+            <!-- Таблица Заказов -->
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5" Background="#F0F0F0">
 
             <Button Content="Добавить клиента" 
-                    Command="{Binding AddTestClientCommand}" 
+                    Command="{Binding AddClientCommand}" 
                     Margin="5" Padding="10,5"/>
 
+            <Button Content="Редактировать" 
+                    Command="{Binding EditClientCommand}" 
+                    Margin="5" Padding="10,5"/>
+            
             <Button Content="Удалить выделенное" 
                     Command="{Binding DeleteClientCommand}" 
                     Margin="5" Padding="10,5"/>
@@ -43,6 +51,26 @@
                 <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="80"/>
             </DataGrid.Columns>
 
+        </DataGrid>
+
+        <!-- Панель управления заказами (Строка 2) -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Background="#E0E0E0" Margin="0,5,0,0">
+            <TextBlock Text="Заказы клиента" VerticalAlignment="Center" FontWeight="Bold" Margin="10,5"/>
+            <Button Content="Добавить заказ" Command="{Binding AddOrderCommand}" Margin="5" Padding="10,2"/>
+        </StackPanel>
+
+        <!-- Таблица Заказов (Строка 3) -->
+        <DataGrid Grid.Row="3" 
+                  ItemsSource="{Binding ClientOrders}"
+                  AutoGenerateColumns="False" 
+                  IsReadOnly="True"
+                  CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                <DataGridTextColumn Header="Дата" Binding="{Binding OrderDate, StringFormat=dd.MM.yyyy HH:mm}" Width="150"/>
+                <DataGridTextColumn Header="Товары" Binding="{Binding Products}" Width="*"/>
+                <DataGridTextColumn Header="Сумма" Binding="{Binding Amount, StringFormat=C2}" Width="100"/>
+            </DataGrid.Columns>
         </DataGrid>
     </Grid>
 </Window>

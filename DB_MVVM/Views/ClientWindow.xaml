@@ -1,0 +1,86 @@
+﻿<Window x:Class="DB_MVVM.Views.ClientWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Карточка клиента" Height="400" Width="400"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+        <!-- Стиль для всех TextBox в этом окне -->
+        <Style TargetType="TextBox">
+            <Style.Triggers>
+                <!-- Если есть ошибка валидации -->
+                <Trigger Property="Validation.HasError" Value="true">
+                    <!-- Делаем подсказку (ToolTip) с текстом ошибки -->
+                    <Setter Property="ToolTip"
+                            Value="{Binding RelativeSource={x:Static RelativeSource.Self},
+                            Path=(Validation.Errors)[0].ErrorContent}"/>
+                    <!-- Красная рамка уже есть по умолчанию в WPF, но можно усилить -->
+                    <Setter Property="BorderBrush" Value="Red"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
+    <!-- Используем Grid для разметки полей -->
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <!-- Растягивающаяся заглушка -->
+            <RowDefinition Height="Auto"/>
+            <!-- Кнопки -->
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Фамилия -->
+        <TextBlock Text="Фамилия:" Grid.Row="0" VerticalAlignment="Center" Margin="0,5"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Margin="0,5"
+                 Text="{Binding Surname, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Имя -->
+        <TextBlock Text="Имя:" Grid.Row="1" VerticalAlignment="Center" Margin="0,5"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,5"
+                 Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Телефон -->
+        <TextBlock Text="Телефон:" Grid.Row="2" VerticalAlignment="Center" Margin="0,5"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Margin="0,5"
+                 Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Email -->
+        <TextBlock Text="Email:" Grid.Row="3" VerticalAlignment="Center" Margin="0,5"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Margin="0,5"
+                 Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Адрес -->
+        <TextBlock Text="Адрес:" Grid.Row="4" VerticalAlignment="Center" Margin="0,5"/>
+        <TextBox Grid.Row="4" Grid.Column="1" Margin="0,5"
+                 Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Статус -->
+        <TextBlock Text="Статус:" Grid.Row="5" VerticalAlignment="Center" Margin="0,5"/>
+        <ComboBox Grid.Row="5" Grid.Column="1" Margin="0,5"
+                  Text="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
+                  IsEditable="True">
+            <ComboBoxItem Content="Обычный"/>
+            <ComboBoxItem Content="VIP"/>
+            <ComboBoxItem Content="Проблемный"/>
+        </ComboBox>
+
+        <!-- Кнопки -->
+        <StackPanel Grid.Row="7" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="Сохранить" Width="100" Margin="5" Click="Accept_Click" IsDefault="True"/>
+            <Button Content="Отмена" Width="100" Margin="5" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>
