@@ -1,33 +1,52 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DB_MVVM.Models
 {
-    public class Order
+    // Наследуем от ObservableValidator для проверки ошибок (пустая сумма, пустые товары)
+    public partial class Order : ObservableValidator
     {
         [Key]
         public int Id { get; set; }
 
-        // Дата заказа. По умолчанию - сейчас.
         public DateTime OrderDate { get; set; } = DateTime.Now;
 
-        // Описание товаров (для простоты - строкой)
-        [Required]
-        public string Products { get; set; } = string.Empty;
+        // Поля для MVVM
+        private string _products = string.Empty;
+        private decimal _amount;
+        private string? _deliveryAddress; // Может быть null
 
-        // Сумма заказа (decimal - стандарт для денег)
-        [Column(TypeName = "decimal(18,2)")] // Настройка точности для БД
-        public decimal Amount { get; set; }
+        [Required(ErrorMessage = "Укажите состав заказа")]
+        public string Products
+        {
+            get => _products;
+            set => SetProperty(ref _products, value, true);
+        }
 
-        // --- ВНЕШНИЙ КЛЮЧ (Связь с клиентом) ---
+        [Range(0.01, 1000000, ErrorMessage = "Сумма должна быть больше 0")]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Amount
+        {
+            get => _amount;
+            set => SetProperty(ref _amount, value, true);
+        }
 
-        // 1. Ссылка на ID клиента
+        // Новое поле!
+        public string? DeliveryAddress
+        {
+            get => _deliveryAddress;
+            set => SetProperty(ref _deliveryAddress, value, true);
+        }
+
+        // Внешний ключ
         public int ClientId { get; set; }
 
-        // 2. Ссылка на самого клиента (Навигационное свойство)
-        // ForeignKey говорит, что это поле связано через ClientId
         [ForeignKey("ClientId")]
-        public virtual Client Client { get; set; }
+        public virtual Client? Client { get; set; }
+
+        // Метод для вызова валидации извне (как мы делали в Client)
+        public void Validate() => ValidateAllProperties();
     }
 }

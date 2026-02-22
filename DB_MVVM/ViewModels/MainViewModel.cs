@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;     // Для ObservableCollection
 using System.Linq;                        // Для работы с LINQ запросами
 using System.Threading.Tasks;             // Для асинхронности (async/await)
 using System.Windows;                     // Для MessageBox
+using System.Windows.Data;
 
 namespace DB_MVVM.ViewModels
 {
@@ -16,6 +17,14 @@ namespace DB_MVVM.ViewModels
         private readonly ApplicationDbContext _context;
 
         // --- СВОЙСТВА ---
+
+        // Выбранный заказ в нижней таблице
+        [ObservableProperty]
+        private Order? _selectedOrder;
+
+        // Общая сумма заказов клиента
+        [ObservableProperty]
+        private decimal _totalOrdersSum;
 
         // Список клиентов (Верхняя таблица)
         [ObservableProperty]
@@ -29,6 +38,8 @@ namespace DB_MVVM.ViewModels
         [ObservableProperty]
         private ObservableCollection<Order> _clientOrders;
 
+        [ObservableProperty]
+        private string _searchText = "";
 
         // --- КОНСТРУКТОР ---
         public MainViewModel()
@@ -41,6 +52,19 @@ namespace DB_MVVM.ViewModels
 
             // Загружаем данные при старте
             LoadData();
+        }
+
+        // Просто пробегает по списку и складывает суммы
+        private void RecalculateTotal()
+        {
+            if (ClientOrders == null)
+            {
+                TotalOrdersSum = 0;
+                return;
+            }
+
+            // LINQ метод Sum делает всё за нас
+            TotalOrdersSum = ClientOrders.Sum(x => x.Amount);
         }
 
         // --- МЕТОДЫ ЗАГРУЗКИ ---
@@ -58,6 +82,8 @@ namespace DB_MVVM.ViewModels
             {
                 Clients.Add(client);
             }
+            // Добавили: Если в поиске что-то было написано при запуске, применим фильтр сразу
+            OnSearchTextChanged(SearchText);
         }
 
         // Магия MVVM Toolkit: этот метод вызывается сам, когда меняется свойство SelectedClient
@@ -84,6 +110,7 @@ namespace DB_MVVM.ViewModels
             {
                 ClientOrders.Add(order);
             }
+            RecalculateTotal();
         }
 
 
@@ -180,18 +207,117 @@ namespace DB_MVVM.ViewModels
                 return;
             }
 
+            // Создаем новый заказ
             var newOrder = new Order
             {
                 OrderDate = System.DateTime.Now,
-                Products = "Новый заказ (Стул)", // Хардкод для теста
-                Amount = 1500,
-                ClientId = SelectedClient.Id
+                ClientId = SelectedClient.Id,
+                // Начальные значения (пустые, чтобы пользователь ввел сам)
+                Products = "",
+                Amount = 0
             };
 
-            _context.Orders.Add(newOrder);
+            // Открываем окно
+            var window = new OrderWindow
+            {
+                DataContext = newOrder
+            };
+
+            bool? result = window.ShowDialog();
+
+            if (result == true)
+            {
+                // Если нажали сохранить - добавляем в БД
+                _context.Orders.Add(newOrder);
+                await _context.SaveChangesAsync();
+
+                // И в таблицу
+                ClientOrders.Add(newOrder);
+            }
+            RecalculateTotal();
+        }
+
+        // --- КОМАНДЫ ДЛЯ ЗАКАЗОВ ---
+
+        [RelayCommand]
+        public async Task EditOrder()
+        {
+            if (SelectedOrder == null) return;
+
+            // Открываем то же окно OrderWindow, но передаем текущий заказ
+            var window = new OrderWindow
+            {
+                DataContext = SelectedOrder
+            };
+
+            bool? result = window.ShowDialog();
+
+            if (result == true)
+            {
+                // Сохраняем изменения в БД
+                await _context.SaveChangesAsync();
+
+                // ВАЖНО: Сумма могла измениться, пересчитываем
+                RecalculateTotal();
+
+                // Трюк для обновления строки в таблице (если изменилась дата или товары)
+                var index = ClientOrders.IndexOf(SelectedOrder);
+                if (index != -1) ClientOrders[index] = SelectedOrder;
+            }
+            else
+            {
+                // Откат изменений при отмене
+                _context.Entry(SelectedOrder).Reload();
+
+                var index = ClientOrders.IndexOf(SelectedOrder);
+                if (index != -1) ClientOrders[index] = SelectedOrder;
+            }
+        }
+
+        [RelayCommand]
+        public async Task DeleteOrder()
+        {
+            if (SelectedOrder == null) return;
+
+            var result = MessageBox.Show("Удалить этот заказ?", "Подтверждение",
+                                         MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.No) return;
+
+            // Удаляем из БД
+            _context.Orders.Remove(SelectedOrder);
             await _context.SaveChangesAsync();
 
-            ClientOrders.Add(newOrder);
+            // Удаляем из списка
+            ClientOrders.Remove(SelectedOrder);
+
+            // Пересчитываем сумму (стала меньше)
+            RecalculateTotal();
+        }
+
+        // Этот метод сработает автоматически при изменении текста в поиске
+        partial void OnSearchTextChanged(string value)
+        {
+            // Получаем "Представление" (View) нашей коллекции клиентов
+            var view = CollectionViewSource.GetDefaultView(Clients);
+
+            // Настраиваем фильтр
+            view.Filter = (obj) =>
+            {
+                // Если поиск пустой — показываем всех
+                if (string.IsNullOrWhiteSpace(value)) return true;
+
+                // Превращаем объект обратно в Клиента
+                var client = obj as Client;
+                if (client == null) return false;
+
+                // ПРОВЕРКА: Содержит ли Фамилия введенный текст?
+                // StringComparison.OrdinalIgnoreCase означает "не важно, большие или маленькие буквы"
+                return client.Surname.Contains(value, System.StringComparison.OrdinalIgnoreCase)
+                    || client.FirstName.Contains(value, System.StringComparison.OrdinalIgnoreCase); // Можно искать и по Имени
+            };
+
+            // Принудительно обновляем вид
+            view.Refresh();
         }
     }
 }

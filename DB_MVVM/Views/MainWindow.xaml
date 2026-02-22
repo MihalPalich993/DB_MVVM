@@ -5,21 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DB_MVVM.Views"
         mc:Ignorable="d"
-        Title="Управление клиентами" Height="450" Width="800"
+        Title="Управление клиентами торговой компании" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
 
+    <!-- Основная сетка разметки -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <!-- 0. Строка поиска -->
             <RowDefinition Height="Auto"/>
-            <!-- Заголовок "Заказы" и Кнопки Заказов -->
+            <!-- 1. Кнопки управления клиентами -->
             <RowDefinition Height="*"/>
-            <!-- Таблица Заказов -->
+            <!-- 2. Таблица Клиентов (растягивается) -->
+            <RowDefinition Height="Auto"/>
+            <!-- 3. Панель управления заказами -->
+            <RowDefinition Height="*"/>
+            <!-- 4. Таблица Заказов (растягивается) -->
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5" Background="#F0F0F0">
+        <!-- === 0. ПАНЕЛЬ ПОИСКА === -->
+        <Border Grid.Row="0" Background="#DDDDDD" Padding="5">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Поиск по фамилии:" 
+                           VerticalAlignment="Center" 
+                           FontWeight="Bold" Margin="5,0"/>
 
+                <TextBox Width="200" 
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center"
+                         Padding="2"
+                         ToolTip="Начните вводить фамилию или имя"/>
+            </StackPanel>
+        </Border>
+
+        <!-- === 1. КНОПКИ КЛИЕНТОВ === -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5" Background="#F0F0F0">
             <Button Content="Добавить клиента" 
                     Command="{Binding AddClientCommand}" 
                     Margin="5" Padding="10,5"/>
@@ -27,50 +47,82 @@
             <Button Content="Редактировать" 
                     Command="{Binding EditClientCommand}" 
                     Margin="5" Padding="10,5"/>
-            
+
             <Button Content="Удалить выделенное" 
                     Command="{Binding DeleteClientCommand}" 
                     Margin="5" Padding="10,5"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" 
+        <!-- === 2. ТАБЛИЦА КЛИЕНТОВ === -->
+        <DataGrid Grid.Row="2" 
                   ItemsSource="{Binding Clients}" 
                   SelectedItem="{Binding SelectedClient}"
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
                   IsReadOnly="True"
-                  Margin="5">
+                  Margin="5"
+                  BorderBrush="Gray"
+                  BorderThickness="1">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                <DataGridTextColumn Header="Фамилия" Binding="{Binding Surname}" Width="150"/>
-                <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="150"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40"/>
+                <DataGridTextColumn Header="Фамилия" Binding="{Binding Surname}" Width="120"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="120"/>
                 <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="120"/>
                 <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="150"/>
                 <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="*"/>
+                <!-- Статус можно подкрасить через стили, но пока просто текст -->
                 <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="80"/>
             </DataGrid.Columns>
 
         </DataGrid>
 
-        <!-- Панель управления заказами (Строка 2) -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Background="#E0E0E0" Margin="0,5,0,0">
+        <!-- === 3. ПАНЕЛЬ ЗАКАЗОВ === -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Background="#E0E0E0" Margin="0,5,0,0">
             <TextBlock Text="Заказы клиента" VerticalAlignment="Center" FontWeight="Bold" Margin="10,5"/>
-            <Button Content="Добавить заказ" Command="{Binding AddOrderCommand}" Margin="5" Padding="10,2"/>
+
+            <Button Content="Добавить заказ" Command="{Binding AddOrderCommand}" Margin="5,5,2,5" Padding="10,2"/>
+            <Button Content="Редактировать" Command="{Binding EditOrderCommand}" Margin="2,5" Padding="10,2"/>
+            <Button Content="Удалить" Command="{Binding DeleteOrderCommand}" Margin="2,5" Padding="10,2"/>
+
+            <!-- ИТОГОВАЯ СУММА -->
+            <TextBlock Text="ИТОГО ПО КЛИЕНТУ:" VerticalAlignment="Center" Margin="50,0,5,0"/>
+            <TextBlock Text="{Binding TotalOrdersSum, StringFormat={}{0:C2}}" 
+                       VerticalAlignment="Center" 
+                       FontSize="14"
+                       Foreground="#0066CC"/>
         </StackPanel>
 
-        <!-- Таблица Заказов (Строка 3) -->
-        <DataGrid Grid.Row="3" 
+        <!-- === 4. ТАБЛИЦА ЗАКАЗОВ === -->
+        <DataGrid Grid.Row="4" 
                   ItemsSource="{Binding ClientOrders}"
+                  SelectedItem="{Binding SelectedOrder}"
                   AutoGenerateColumns="False" 
                   IsReadOnly="True"
-                  CanUserAddRows="False">
+                  CanUserAddRows="False"
+                  Margin="5"
+                  BorderBrush="Gray"
+                  BorderThickness="1">
+
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                <DataGridTextColumn Header="Дата" Binding="{Binding OrderDate, StringFormat=dd.MM.yyyy HH:mm}" Width="150"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40"/>
+                <DataGridTextColumn Header="Дата" Binding="{Binding OrderDate, StringFormat=dd.MM.yyyy HH:mm}" Width="120"/>
                 <DataGridTextColumn Header="Товары" Binding="{Binding Products}" Width="*"/>
                 <DataGridTextColumn Header="Сумма" Binding="{Binding Amount, StringFormat=C2}" Width="100"/>
+                <DataGridTextColumn Header="Доставка" Binding="{Binding DeliveryAddress}" Width="*"/>
             </DataGrid.Columns>
+
+            <!-- Добавим подсказку, если таблица пустая -->
+            <DataGrid.Style>
+                <Style TargetType="DataGrid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ClientOrders.Count}" Value="0">
+                            <Setter Property="ToolTip" Value="У этого клиента пока нет заказов"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Style>
+
         </DataGrid>
     </Grid>
 </Window>
