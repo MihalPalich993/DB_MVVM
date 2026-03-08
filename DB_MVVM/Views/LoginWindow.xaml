@@ -1,0 +1,41 @@
+﻿<Window x:Class="DB_MVVM.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Авторизация" Height="400" Width="350"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        Background="#F5F5F5">
+
+    <Grid>
+        <!-- Карточка входа -->
+        <Border Background="White" CornerRadius="15" Margin="30" VerticalAlignment="Center">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" Direction="270" Opacity="0.1" ShadowDepth="5"/>
+            </Border.Effect>
+
+            <StackPanel Margin="25">
+                <TextBlock Text="Вход в систему" FontSize="22" FontWeight="Bold" 
+                           HorizontalAlignment="Center" Margin="0,0,0,20" Foreground="#333"/>
+
+                <TextBlock Text="Логин" Foreground="Gray" Margin="0,0,0,5"/>
+                <!-- Выпадающий список вместо обычного поля ввода -->
+                <ComboBox x:Name="cbLogin" Height="35" Margin="0,0,0,15" 
+                          IsEditable="True" VerticalContentAlignment="Center"
+                          DisplayMemberPath="Username"/>
+
+                <TextBlock Text="Пароль" Foreground="Gray" Margin="0,0,0,5"/>
+                <PasswordBox x:Name="pbPassword" Height="35" Margin="0,0,0,25" 
+                             VerticalContentAlignment="Center"/>
+
+                <Button Content="Войти" Height="40" Background="#0066CC" Foreground="White" 
+                        FontWeight="Bold" BorderThickness="0" Cursor="Hand"
+                        Click="Login_Click" IsDefault="True">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

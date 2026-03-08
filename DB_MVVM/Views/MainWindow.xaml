@@ -5,124 +5,162 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DB_MVVM.Views"
         mc:Ignorable="d"
-        Title="Управление клиентами торговой компании" Height="600" Width="900"
-        WindowStartupLocation="CenterScreen">
+        Title="Торговая компания — Система управления" Height="850" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F2F5">
 
-    <!-- Основная сетка разметки -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- 0. Строка поиска -->
+            <!-- 0. Поиск -->
             <RowDefinition Height="Auto"/>
-            <!-- 1. Кнопки управления клиентами -->
+            <!-- 1. Статистика -->
             <RowDefinition Height="*"/>
-            <!-- 2. Таблица Клиентов (растягивается) -->
-            <RowDefinition Height="Auto"/>
-            <!-- 3. Панель управления заказами -->
+            <!-- 2. Секция КЛИЕНТЫ -->
             <RowDefinition Height="*"/>
-            <!-- 4. Таблица Заказов (растягивается) -->
+            <!-- 3. Секция ЗАКАЗЫ -->
         </Grid.RowDefinitions>
 
-        <!-- === 0. ПАНЕЛЬ ПОИСКА === -->
-        <Border Grid.Row="0" Background="#DDDDDD" Padding="5">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Поиск по фамилии:" 
-                           VerticalAlignment="Center" 
-                           FontWeight="Bold" Margin="5,0"/>
-
-                <TextBox Width="200" 
-                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         VerticalContentAlignment="Center"
-                         Padding="2"
-                         ToolTip="Начните вводить фамилию или имя"/>
+        <!-- === 0. ВЕРХНЯЯ ПАНЕЛЬ (ПОИСК) === -->
+        <Border Grid.Row="0" Background="{StaticResource AccentColor}" Padding="20,10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Foreground="White" Margin="0,0,15,0" FontSize="18"/>
+                <!-- SearchText остался в MainViewModel, тут путь не меняем -->
+                <TextBox Width="400" Height="35" VerticalContentAlignment="Center" BorderThickness="0" FontSize="14"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
         </Border>
 
-        <!-- === 1. КНОПКИ КЛИЕНТОВ === -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5" Background="#F0F0F0">
-            <Button Content="Добавить клиента" 
-                    Command="{Binding AddClientCommand}" 
-                    Margin="5" Padding="10,5"/>
+        <!-- === 1. DASHBOARD (СТАТИСТИКА) === -->
+        <UniformGrid Grid.Row="1" Columns="3" Margin="15,10">
+            <Border Background="White" Margin="5" CornerRadius="10" Padding="20" BorderBrush="#DEE2E6" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="КЛИЕНТЫ" Foreground="#6C757D" FontSize="11" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding TotalClientsCount}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource AccentColor}"/>
+                </StackPanel>
+            </Border>
+            <Border Background="White" Margin="5" CornerRadius="10" Padding="20" BorderBrush="#DEE2E6" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="ЗАКАЗЫ" Foreground="#6C757D" FontSize="11" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding TotalOrdersCount}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource SuccessColor}"/>
+                </StackPanel>
+            </Border>
+            <Border Background="White" Margin="5" CornerRadius="10" Padding="20" BorderBrush="#DEE2E6" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="ВЫРУЧКА" Foreground="#6C757D" FontSize="11" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding AllTimeRevenue, StringFormat={}{0:C0}}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
 
-            <Button Content="Редактировать" 
-                    Command="{Binding EditClientCommand}" 
-                    Margin="5" Padding="10,5"/>
+        <!-- === 2. СЕКЦИЯ КЛИЕНТЫ === -->
+        <Border Grid.Row="2" Background="White" Margin="20,10" CornerRadius="12" BorderBrush="#DEE2E6" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <Button Content="Удалить выделенное" 
-                    Command="{Binding DeleteClientCommand}" 
-                    Margin="5" Padding="10,5"/>
-        </StackPanel>
+                <DockPanel Grid.Row="0" Margin="15,10">
+                    <TextBlock Text="Клиентская база" VerticalAlignment="Center" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <!-- Пути к командам теперь через ClientsVM -->
+                        <Button Command="{Binding ClientsVM.AddClientCommand}" Background="{StaticResource SuccessColor}" Width="140">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Добавить" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ClientsVM.EditClientCommand}" Background="#6C757D" Width="130">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Изменить" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ClientsVM.DeleteClientCommand}" Background="{StaticResource DangerColor}" Visibility="{Binding AdminVisibility}" Width="120">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Удалить" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Separator Width="1" Background="#DDD" Margin="10,5"/>
+                        <!-- ShowLogsCommand осталась в MainViewModel -->
+                        <Button Command="{Binding ShowLogsCommand}" Background="{StaticResource PrimaryColor}" Visibility="{Binding AdminVisibility}">
+                            <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="16"/>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
 
-        <!-- === 2. ТАБЛИЦА КЛИЕНТОВ === -->
-        <DataGrid Grid.Row="2" 
-                  ItemsSource="{Binding Clients}" 
-                  SelectedItem="{Binding SelectedClient}"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  IsReadOnly="True"
-                  Margin="5"
-                  BorderBrush="Gray"
-                  BorderThickness="1">
+                <!-- Данные теперь в ClientsVM.Clients -->
+                <DataGrid Grid.Row="1" 
+                          ItemsSource="{Binding ClientsVM.Clients}" 
+                          SelectedItem="{Binding ClientsVM.SelectedClient}"
+                          Margin="15,0,15,15">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="45"/>
+                        <DataGridTextColumn Header="Фамилия" Binding="{Binding Surname}" Width="150" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="120"/>
+                        <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="130"/>
+                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                        <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="*"/>
+                        <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
 
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40"/>
-                <DataGridTextColumn Header="Фамилия" Binding="{Binding Surname}" Width="120"/>
-                <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="120"/>
-                <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="120"/>
-                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="150"/>
-                <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="*"/>
-                <!-- Статус можно подкрасить через стили, но пока просто текст -->
-                <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="80"/>
-            </DataGrid.Columns>
+        <!-- === 3. СЕКЦИЯ ЗАКАЗЫ === -->
+        <Border Grid.Row="3" Background="White" Margin="20,10" CornerRadius="12" BorderBrush="#DEE2E6" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-        </DataGrid>
+                <DockPanel Grid.Row="0" Margin="15,10">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Заказы:" FontSize="16" FontWeight="Bold" Foreground="#495057"/>
+                        <!-- Путь через ClientsVM.SelectedClient -->
+                        <TextBlock Text="{Binding ClientsVM.SelectedClient.FullName}" FontSize="16" Margin="10,0" Foreground="{StaticResource AccentColor}" FontWeight="Bold"/>
+                    </StackPanel>
 
-        <!-- === 3. ПАНЕЛЬ ЗАКАЗОВ === -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" Background="#E0E0E0" Margin="0,5,0,0">
-            <TextBlock Text="Заказы клиента" VerticalAlignment="Center" FontWeight="Bold" Margin="10,5"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <TextBlock Text="ИТОГО:" VerticalAlignment="Center" Foreground="#6C757D" FontSize="12" Margin="0,0,10,0" FontWeight="Bold"/>
+                        <!-- Сумма теперь в OrdersVM -->
+                        <TextBlock Text="{Binding OrdersVM.TotalOrdersSum, StringFormat={}{0:C2}}" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{StaticResource AccentColor}" Margin="0,0,0,0"/>
 
-            <Button Content="Добавить заказ" Command="{Binding AddOrderCommand}" Margin="5,5,2,5" Padding="10,2"/>
-            <Button Content="Редактировать" Command="{Binding EditOrderCommand}" Margin="2,5" Padding="10,2"/>
-            <Button Content="Удалить" Command="{Binding DeleteOrderCommand}" Margin="2,5" Padding="10,2"/>
+                        <!-- Команды теперь через OrdersVM -->
+                        <!-- Для добавления передаем параметр (выбранного клиента) -->
+                        <Button Command="{Binding OrdersVM.AddOrderCommand}" CommandParameter="{Binding ClientsVM.SelectedClient}" 
+                                Background="{StaticResource SuccessColor}" Padding="15,5">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Новый заказ" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding OrdersVM.EditOrderCommand}" Width="45" Background="#6C757D">
+                            <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets"/>
+                        </Button>
+                        <Button Command="{Binding OrdersVM.DeleteOrderCommand}" Width="45" Background="{StaticResource DangerColor}">
+                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets"/>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
 
-            <!-- ИТОГОВАЯ СУММА -->
-            <TextBlock Text="ИТОГО ПО КЛИЕНТУ:" VerticalAlignment="Center" Margin="50,0,5,0"/>
-            <TextBlock Text="{Binding TotalOrdersSum, StringFormat={}{0:C2}}" 
-                       VerticalAlignment="Center" 
-                       FontSize="14"
-                       Foreground="#0066CC"/>
-        </StackPanel>
-
-        <!-- === 4. ТАБЛИЦА ЗАКАЗОВ === -->
-        <DataGrid Grid.Row="4" 
-                  ItemsSource="{Binding ClientOrders}"
-                  SelectedItem="{Binding SelectedOrder}"
-                  AutoGenerateColumns="False" 
-                  IsReadOnly="True"
-                  CanUserAddRows="False"
-                  Margin="5"
-                  BorderBrush="Gray"
-                  BorderThickness="1">
-
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40"/>
-                <DataGridTextColumn Header="Дата" Binding="{Binding OrderDate, StringFormat=dd.MM.yyyy HH:mm}" Width="120"/>
-                <DataGridTextColumn Header="Товары" Binding="{Binding Products}" Width="*"/>
-                <DataGridTextColumn Header="Сумма" Binding="{Binding Amount, StringFormat=C2}" Width="100"/>
-                <DataGridTextColumn Header="Доставка" Binding="{Binding DeliveryAddress}" Width="*"/>
-            </DataGrid.Columns>
-
-            <!-- Добавим подсказку, если таблица пустая -->
-            <DataGrid.Style>
-                <Style TargetType="DataGrid">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ClientOrders.Count}" Value="0">
-                            <Setter Property="ToolTip" Value="У этого клиента пока нет заказов"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.Style>
-
-        </DataGrid>
+                <!-- Данные в OrdersVM.ClientOrders -->
+                <DataGrid Grid.Row="1" 
+                          ItemsSource="{Binding OrdersVM.ClientOrders}" 
+                          SelectedItem="{Binding OrdersVM.SelectedOrder}"
+                          Margin="15,0,15,15">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                        <DataGridTextColumn Header="Дата" Binding="{Binding OrderDate, StringFormat=dd.MM.yyyy HH:mm}" Width="150"/>
+                        <DataGridTextColumn Header="Товары" Binding="{Binding Products}" Width="*"/>
+                        <DataGridTextColumn Header="Адрес доставки" Binding="{Binding DeliveryAddress}" Width="200"/>
+                        <DataGridTextColumn Header="Сумма" Binding="{Binding Amount, StringFormat=C2}" Width="130" FontWeight="Bold"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

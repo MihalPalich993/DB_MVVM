@@ -2,8 +2,130 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:DB_MVVM"
-             StartupUri="Views\MainWindow.xaml">
+             StartupUri="Views\LoginWindow.xaml">
     <Application.Resources>
-         
+        <!-- 1. ЦВЕТОВАЯ ПАЛИТРА -->
+        <SolidColorBrush x:Key="PrimaryColor" Color="#2C3E50"/>
+        <SolidColorBrush x:Key="AccentColor" Color="#3498DB"/>
+        <SolidColorBrush x:Key="SuccessColor" Color="#27AE60"/>
+        <SolidColorBrush x:Key="DangerColor" Color="#E74C3C"/>
+        <SolidColorBrush x:Key="BgColor" Color="#F0F2F5"/>
+
+        <!-- 2. СТИЛЬ ДЛЯ КНОПОК -->
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <!-- Основной контейнер кнопки -->
+                        <Border x:Name="border" 
+                        Background="{TemplateBinding Background}" 
+                        CornerRadius="6">
+                            <Grid>
+                                <!-- СЛОЙ ЗАТЕМНЕНИЯ: По умолчанию прозрачный -->
+                                <Border x:Name="hoverLayer" Background="Black" Opacity="0" CornerRadius="6"/>
+
+                                <!-- Контент кнопки (текст и иконка) -->
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                          VerticalAlignment="Center" 
+                                          Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <!-- ПРИ НАВЕДЕНИИ: Проявляем черный слой на 15%, что дает эффект затемнения -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="hoverLayer" Property="Opacity" Value="0.15"/>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+
+                            <!-- ПРИ НАЖАТИИ: Делаем еще чуть темнее (30%) -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="hoverLayer" Property="Opacity" Value="0.3"/>
+                            </Trigger>
+
+                            <!-- Если кнопка отключена (например, когда не выбран клиент) -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Background" Value="#BDC3C7"/>
+                                <Setter Property="Foreground" Value="#ECF0F1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 3. СТИЛЬ ДЛЯ TEXTBOX -->
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!-- 4. СТИЛЬ ДЛЯ DATAGRID (ИСПРАВЛЕННЫЙ) -->
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#EDF0F2"/>
+            <Setter Property="RowHeight" Value="45"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+
+            <!-- Исправленный ColumnHeaderStyle с использованием Setter.Value -->
+            <Setter Property="ColumnHeaderStyle">
+                <Setter.Value>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F8F9FA"/>
+                        <Setter Property="Foreground" Value="#3498DB"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Padding" Value="15,12"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                        <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#F0F7FF"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#2B6CB0"/>
+            </Style.Resources>
+        </Style>
+
+        <!-- 5. СТИЛЬ ЯЧЕЙКИ DATAGRID (ИСПРАВЛЕННЫЙ) -->
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridCell}">
+                        <Border Padding="{TemplateBinding Padding}" 
+                            Background="{TemplateBinding Background}" 
+                            BorderThickness="0">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#F0F7FF"/>
+                    <Setter Property="Foreground" Value="#2B6CB0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

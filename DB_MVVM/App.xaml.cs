@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
-using System.Threading;
 using System.Windows;
+using System.Windows.Markup; // Нужно для XmlLanguage
 
 namespace DB_MVVM
 {
@@ -8,14 +8,18 @@ namespace DB_MVVM
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            // Создаем русскую культуру
-            var culture = new CultureInfo("ru-RU");
+            // 1. Устанавливаем культуру для кода (вычисления, даты в C#)
+            var cultureInfo = new CultureInfo("ru-RU");
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+            Thread.CurrentThread.CurrentUICulture = cultureInfo;
 
-            // Применяем её ко всем потокам приложения
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
+            // 2. ГЛАВНЫЙ МОМЕНТ: Устанавливаем культуру для XAML (интерфейса)
+            // Это заставит все Binding-и с StringFormat=C видеть рубли
+            FrameworkElement.LanguageProperty.OverrideMetadata(
+                typeof(FrameworkElement),
+                new FrameworkPropertyMetadata(
+                    XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
 
-            // Стандартный запуск
             base.OnStartup(e);
         }
     }
