@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DB_MVVM.Models
 {
-    // Наследуем от ObservableValidator для проверки ошибок (пустая сумма, пустые товары)
     public partial class Order : ObservableValidator
     {
         [Key]
@@ -13,10 +12,9 @@ namespace DB_MVVM.Models
 
         public DateTime OrderDate { get; set; } = DateTime.Now;
 
-        // Поля для MVVM
         private string _products = string.Empty;
         private decimal _amount;
-        private string? _deliveryAddress; // Может быть null
+        private string? _deliveryAddress;
 
         [Required(ErrorMessage = "Укажите состав заказа")]
         public string Products
@@ -33,20 +31,17 @@ namespace DB_MVVM.Models
             set => SetProperty(ref _amount, value, true);
         }
 
-        // Новое поле!
         public string? DeliveryAddress
         {
             get => _deliveryAddress;
             set => SetProperty(ref _deliveryAddress, value, true);
         }
 
-        // Внешний ключ
         public int ClientId { get; set; }
 
         [ForeignKey("ClientId")]
         public virtual Client? Client { get; set; }
 
-        // Метод для вызова валидации извне (как мы делали в Client)
         public void Validate() => ValidateAllProperties();
     }
 }

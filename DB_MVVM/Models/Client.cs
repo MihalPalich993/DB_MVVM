@@ -1,14 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel; // Библиотека MVVM
-using System.ComponentModel.DataAnnotations; // Библиотека Атрибутов
-
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel.DataAnnotations; 
 namespace DB_MVVM.Models
 {
-    // 1. Наследуемся от ObservableValidator (он умеет проверять ошибки)
     public partial class Client : ObservableValidator
     {
         public int Id { get; set; }
 
-        // Поля для хранения значений (backing fields)
         private string _surname = string.Empty;
         private string _firstName = string.Empty;
         private string _phone = string.Empty;
@@ -16,14 +13,12 @@ namespace DB_MVVM.Models
         private string _address = string.Empty;
         private string _status = "Обычный";
 
-        // 2. СВОЙСТВА С ВАЛИДАЦИЕЙ
-
         [Required(ErrorMessage = "Фамилия обязательна")]
         [MinLength(2, ErrorMessage = "Минимум 2 буквы")]
         public string Surname
         {
             get => _surname;
-            set => SetProperty(ref _surname, value, true); // true включает валидацию
+            set => SetProperty(ref _surname, value, true);
         }
 
         [Required(ErrorMessage = "Имя обязательно")]
@@ -37,8 +32,6 @@ namespace DB_MVVM.Models
         [Phone(ErrorMessage = "Некорректный формат")]
         [MinLength(11, ErrorMessage = "Должно быть 11 цифр")]
         [MaxLength(12, ErrorMessage = "Максимум 12 цифр")]
-        // Можно использовать регулярное выражение для только цифр:
-        // [RegularExpression(@"^\d+$", ErrorMessage = "Только цифры")]
         public string Phone
         {
             get => _phone;
@@ -47,9 +40,6 @@ namespace DB_MVVM.Models
 
         [Required(ErrorMessage = "Email обязателен")]
         [EmailAddress(ErrorMessage = "Нет символа @ или неверный формат")]
-        // ДОБАВЛЯЕМ РЕГУЛЯРНОЕ ВЫРАЖЕНИЕ:
-        // Этот паттерн разрешает только латинские буквы, цифры и стандартные символы почты.
-        // Русские буквы (кириллица) в этот диапазон не входят.
         [RegularExpression(@"^[a-zA-Z0-9@._-]+$", ErrorMessage = "Почта может содержать только латинские буквы и спецсимволы")]
         public string Email
         {
@@ -69,16 +59,12 @@ namespace DB_MVVM.Models
             set => SetProperty(ref _status, value, true);
         }
 
-        // Вспомогательное свойство (не в базу)
         public string FullName => $"{Surname} {FirstName}";
 
         public void Validate()
         {
             ValidateAllProperties();
         }
-
-        // Навигационное свойство: Список заказов этого клиента
-        // virtual нужен для Entity Framework
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 
